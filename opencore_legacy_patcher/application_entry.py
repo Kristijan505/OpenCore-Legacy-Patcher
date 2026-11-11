@@ -106,7 +106,11 @@ class OpenCoreLegacyPatcher:
 
         # Generate commit info
         self.constants.commit_info = commit_info.ParseCommitInfo(self.constants.launcher_binary).generate_commit_info()
-        if self.constants.commit_info[0] not in ["Running from source", "Built from source"]:
+        if self.constants.commit_info[0].startswith("refs/tags/"):
+            # Prerelease tags may differ from the application's display version.
+            tag = self.constants.commit_info[0][len("refs/tags/"):]
+            self.constants.installer_pkg_url = f"{self.constants.repo_link}/releases/download/{tag}/AutoPkg-Assets.pkg"
+        elif self.constants.commit_info[0] not in ["Running from source", "Built from source"]:
             # Now that we have commit info, update nightly link
             branch = self.constants.commit_info[0]
             branch = branch.replace("refs/heads/", "")
